@@ -1,0 +1,695 @@
+```html
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Hold Crypto 3 Tahun (2026-2029)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (XLSX) for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        darkbg: '#0f172a',
+                        darkcard: '#1e293b',
+                        darkborder: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .excel-grid input {
+            background: transparent;
+            border: 1px solid transparent;
+            width: 100%;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .excel-grid input:focus {
+            background: #0f172a;
+            border-color: #22c55e;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Navigation Bar -->
+    <header class="border-b border-darkborder bg-darkcard/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-brand-500/20 text-brand-500 rounded-xl border border-brand-500/30">
+                    <i data-lucide="trending-up" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
+                        Crypto HODL Pro <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20">3 Years Horizon</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Simulator Investasi 5 Koin Terbaik (2026 - 2029)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Currency Toggle -->
+                <div class="bg-darkbg p-1 rounded-lg border border-darkborder flex items-center text-xs font-semibold">
+                    <button id="btn-idr" onclick="setCurrency('IDR')" class="px-3 py-1.5 rounded-md transition text-white bg-brand-600">IDR (Rp)</button>
+                    <button id="btn-usd" onclick="setCurrency('USD')" class="px-3 py-1.5 rounded-md transition text-slate-400 hover:text-white">USD ($)</button>
+                </div>
+
+                <!-- Export Excel Button -->
+                <button onclick="exportToExcel()" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition shadow-lg shadow-emerald-900/20">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Ekspor ke Excel</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Top Overview & Info Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-darkborder rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center relative z-10">
+                <div class="space-y-2">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i data-lucide="shield-check" class="text-brand-500 w-5 h-5"></i>
+                        Portofolio Crypto 5 Tahun Terakhir (Top Tier Assets)
+                    </h2>
+                    <p class="text-sm text-slate-300 max-w-3xl">
+                        Aplikasi ini menggunakan aset dengan rekam jejak terbaik 5 tahun terakhir (<strong>BTC, ETH, SOL, BNB, ADA, XRP</strong>). Anda dapat menyimulasikan investasi <em>Lump-Sum</em> (Modal Awal) dan <em>DCA (Dollar Cost Averaging)</em> bulanan selama 36 bulan ke depan.
+                    </p>
+                </div>
+                <!-- Preset Scenarios -->
+                <div class="flex items-center gap-2 bg-darkbg/80 p-2 rounded-xl border border-darkborder w-full md:w-auto">
+                    <span class="text-xs font-medium text-slate-400 px-2">Skenario:</span>
+                    <button onclick="applyScenario('conservative')" class="px-3 py-1.5 text-xs rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 transition">Konservatif</button>
+                    <button onclick="applyScenario('moderate')" class="px-3 py-1.5 text-xs rounded-lg border border-brand-500/50 bg-brand-500/10 text-brand-400 font-semibold transition">Moderat</button>
+                    <button onclick="applyScenario('aggressive')" class="px-3 py-1.5 text-xs rounded-lg border border-purple-500/50 bg-purple-500/10 text-purple-400 font-semibold transition">Agresif</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls & Metrics Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Input Form (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-darkcard border border-darkborder rounded-2xl p-6 space-y-6 shadow-xl">
+                    <h3 class="font-semibold text-lg text-white border-b border-darkborder pb-3 flex items-center justify-between">
+                        <span>Parameter Investasi</span>
+                        <i data-lucide="sliders" class="w-5 h-5 text-slate-400"></i>
+                    </h3>
+
+                    <!-- Initial Capital Input -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-medium text-slate-300 flex justify-between">
+                            <span>Modal Awal (Lump-sum)</span>
+                            <span id="label-curr-1" class="text-brand-500">IDR</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 text-sm curr-symbol">Rp</span>
+                            <input type="number" id="input-initial" value="10000000" oninput="calculateProjections()" 
+                                class="w-full bg-darkbg border border-darkborder rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 transition">
+                        </div>
+                    </div>
+
+                    <!-- Monthly DCA Input -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-medium text-slate-300 flex justify-between">
+                            <span>Setoran Bulanan (DCA)</span>
+                            <span id="label-curr-2" class="text-brand-500">IDR / Bulan</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 text-sm curr-symbol">Rp</span>
+                            <input type="number" id="input-dca" value="1000000" oninput="calculateProjections()" 
+                                class="w-full bg-darkbg border border-darkborder rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 transition">
+                        </div>
+                    </div>
+
+                    <!-- Duration Info -->
+                    <div class="p-4 bg-darkbg/60 rounded-xl border border-darkborder space-y-2">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Durasi Hold:</span>
+                            <span class="font-semibold text-white">3 Tahun (36 Bulan)</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Periode:</span>
+                            <span class="font-semibold text-brand-400">Okt 2026 - Okt 2029</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Capital Calculated Card -->
+                    <div class="p-4 bg-brand-500/10 border border-brand-500/20 rounded-xl space-y-1">
+                        <div class="text-xs text-brand-400 font-medium">Total Modal Terkumpul (3 Tahun):</div>
+                        <div id="display-total-deposited" class="text-xl font-bold text-white">Rp 46.000.000</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Asset Allocation Table (8 cols) -->
+            <div class="lg:col-span-8">
+                <div class="bg-darkcard border border-darkborder rounded-2xl p-6 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-darkborder pb-3">
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">Alokasi & Projected Target CAGR</h3>
+                            <p class="text-xs text-slate-400">Atur bobot portofolio (%) dan estimasi kenaikan tahunan (CAGR %)</p>
+                        </div>
+                        <div id="allocation-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-brand-500/20 text-brand-400 border border-brand-500/30">
+                            Total Alokasi: 100%
+                        </div>
+                    </div>
+
+                    <!-- Assets Input Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="text-xs text-slate-400 border-b border-darkborder">
+                                    <th class="pb-3 font-semibold">Aset</th>
+                                    <th class="pb-3 font-semibold">Harga Saat Ini</th>
+                                    <th class="pb-3 font-semibold">Alokasi (%)</th>
+                                    <th class="pb-3 font-semibold">Est. CAGR Tahunan (%)</th>
+                                    <th class="pb-3 font-semibold text-right">Target Harga (Thn 3)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="asset-rows" class="divide-y divide-darkborder/50">
+                                <!-- Dynamic rows populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Results Dashboard -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-darkcard border border-darkborder rounded-2xl p-5 shadow-lg space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Total Investasi (Modal)</span>
+                    <i data-lucide="wallet" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div id="kpi-deposited" class="text-2xl font-bold text-white">Rp 0</div>
+                <div class="text-xs text-slate-500">Modal Awal + (DCA x 36 Bln)</div>
+            </div>
+
+            <div class="bg-darkcard border border-darkborder rounded-2xl p-5 shadow-lg space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Nilai Portofolio (Tahun 3)</span>
+                    <i data-lucide="coins" class="w-4 h-4 text-brand-400"></i>
+                </div>
+                <div id="kpi-final-value" class="text-2xl font-bold text-brand-400">Rp 0</div>
+                <div class="text-xs text-emerald-500/80 flex items-center gap-1">
+                    <i data-lucide="arrow-up-right" class="w-3 h-3"></i> Projected Gross Value
+                </div>
+            </div>
+
+            <div class="bg-darkcard border border-darkborder rounded-2xl p-5 shadow-lg space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Estimasi Keuntungan (Profit)</span>
+                    <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+                </div>
+                <div id="kpi-net-profit" class="text-2xl font-bold text-purple-400">Rp 0</div>
+                <div class="text-xs text-slate-500">Nilai Akhir - Total Modal</div>
+            </div>
+
+            <div class="bg-darkcard border border-darkborder rounded-2xl p-5 shadow-lg space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Estimasi ROI (%)</span>
+                    <i data-lucide="percent" class="w-4 h-4 text-amber-400"></i>
+                </div>
+                <div id="kpi-roi" class="text-2xl font-bold text-amber-400">+0%</div>
+                <div class="text-xs text-slate-500">Return on Investment</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Growth Projection Chart -->
+            <div class="lg:col-span-8 bg-darkcard border border-darkborder rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-lg text-white">Proyeksi Pertumbuhan Portofolio (36 Bulan)</h3>
+                        <p class="text-xs text-slate-400">Perbandingan antara Modal yang Disetor vs Nilai Aset</p>
+                    </div>
+                </div>
+                <div class="h-72 w-full">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Allocation Doughnut Chart -->
+            <div class="lg:col-span-4 bg-darkcard border border-darkborder rounded-2xl p-6 shadow-xl space-y-4">
+                <div>
+                    <h3 class="font-semibold text-lg text-white">Distribusi Aset Akhir</h3>
+                    <p class="text-xs text-slate-400">Proporsi nilai koin pada Tahun ke-3</p>
+                </div>
+                <div class="h-72 w-full flex items-center justify-center">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Excel Data Table Breakdown -->
+        <div class="bg-darkcard border border-darkborder rounded-2xl p-6 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-darkborder pb-4">
+                <div>
+                    <h3 class="font-semibold text-lg text-white flex items-center gap-2">
+                        <i data-lucide="table" class="w-5 h-5 text-brand-500"></i>
+                        Tabel Breakdown Simulasi Bulanan (Spreadsheet View)
+                    </h3>
+                    <p class="text-xs text-slate-400">Rincian akumulasi modal, deposit DCA, dan pertumbuhan aset tiap bulan selama 36 bulan.</p>
+                </div>
+                <button onclick="exportToExcel()" class="px-3 py-1.5 bg-darkbg border border-darkborder hover:border-brand-500 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4 text-brand-500"></i>
+                    Unduh Sheet (.xlsx)
+                </button>
+            </div>
+
+            <div class="overflow-x-auto max-h-96 rounded-xl border border-darkborder">
+                <table class="w-full text-xs text-left text-slate-300 excel-grid">
+                    <thead class="bg-slate-900/90 text-slate-400 sticky top-0 z-10 border-b border-darkborder uppercase tracking-wider">
+                        <tr>
+                            <th class="py-3 px-4 font-semibold">Bulan ke-</th>
+                            <th class="py-3 px-4 font-semibold">Tanggal</th>
+                            <th class="py-3 px-4 font-semibold">Deposit Bulanan</th>
+                            <th class="py-3 px-4 font-semibold">Total Modal</th>
+                            <th class="py-3 px-4 font-semibold">BTC Value</th>
+                            <th class="py-3 px-4 font-semibold">ETH Value</th>
+                            <th class="py-3 px-4 font-semibold">SOL Value</th>
+                            <th class="py-3 px-4 font-semibold">BNB Value</th>
+                            <th class="py-3 px-4 font-semibold">ADA Value</th>
+                            <th class="py-3 px-4 font-semibold">XRP Value</th>
+                            <th class="py-3 px-4 font-semibold text-right">Total Nilai Portofolio</th>
+                            <th class="py-3 px-4 font-semibold text-right">Profit / Loss</th>
+                        </tr>
+                    </thead>
+                    <tbody id="excel-table-body" class="divide-y divide-darkborder/40 bg-darkbg/40 font-mono">
+                        <!-- Dynamic rows populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-darkborder bg-darkcard py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
+            <p>© 2026 Crypto HODL Investment Calculator - Proyeksi berbasis histori performa 5 tahun terakhir.</p>
+            <p class="italic">Catatan: Simulasi ini adalah alat kalkulasi statistik dan simulasi finansial. Pasar kripto bersifat volatil, lakukan riset mandiri (DYOR).</p>
+        </div>
+    </footer>
+
+    <script>
+        // Exchange Rate & Default State
+        let currentCurrency = 'IDR';
+        const USD_TO_IDR = 15800;
+
+        // Assets data based on top performance past 5 years (2021-2026)
+        let assets = [
+            { id: 'btc', name: 'Bitcoin', symbol: 'BTC', priceUSD: 65000, allocation: 40, cagr: 25, color: '#f7931a' },
+            { id: 'eth', name: 'Ethereum', symbol: 'ETH', priceUSD: 3500, allocation: 25, cagr: 30, color: '#627eea' },
+            { id: 'sol', name: 'Solana', symbol: 'SOL', priceUSD: 145, allocation: 15, cagr: 45, color: '#14f195' },
+            { id: 'bnb', name: 'Binance Coin', symbol: 'BNB', priceUSD: 580, allocation: 10, cagr: 20, color: '#f3ba2f' },
+            { id: 'ada', name: 'Cardano', symbol: 'ADA', priceUSD: 0.45, allocation: 5, cagr: 25, color: '#0033ad' },
+            { id: 'xrp', name: 'Ripple', symbol: 'XRP', priceUSD: 0.55, allocation: 5, cagr: 20, color: '#23292f' }
+        ];
+
+        let growthChart = null;
+        let allocationChart = null;
+        let monthlySimulationData = [];
+
+        function formatMoney(amount, currency = currentCurrency) {
+            if (currency === 'IDR') {
+                return 'Rp ' + Math.round(amount).toLocaleString('id-ID');
+            } else {
+                return '$ ' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+        }
+
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            document.getElementById('btn-idr').className = curr === 'IDR' ? 'px-3 py-1.5 rounded-md transition text-white bg-brand-600' : 'px-3 py-1.5 rounded-md transition text-slate-400 hover:text-white';
+            document.getElementById('btn-usd').className = curr === 'USD' ? 'px-3 py-1.5 rounded-md transition text-white bg-brand-600' : 'px-3 py-1.5 rounded-md transition text-slate-400 hover:text-white';
+            
+            document.getElementById('label-curr-1').innerText = curr;
+            document.getElementById('label-curr-2').innerText = curr + ' / Bulan';
+            
+            const symbols = document.querySelectorAll('.curr-symbol');
+            symbols.forEach(s => s.innerText = curr === 'IDR' ? 'Rp' : '$');
+
+            // Adjust input defaults if switching currency directly
+            const initialInput = document.getElementById('input-initial');
+            const dcaInput = document.getElementById('input-dca');
+            
+            if (curr === 'USD') {
+                if (initialInput.value > 100000) initialInput.value = Math.round(initialInput.value / USD_TO_IDR);
+                if (dcaInput.value > 1000) dcaInput.value = Math.round(dcaInput.value / USD_TO_IDR);
+            } else {
+                if (initialInput.value < 100000) initialInput.value = Math.round(initialInput.value * USD_TO_IDR);
+                if (dcaInput.value < 1000) dcaInput.value = Math.round(dcaInput.value * USD_TO_IDR);
+            }
+
+            renderAssetRows();
+            calculateProjections();
+        }
+
+        function renderAssetRows() {
+            const tbody = document.getElementById('asset-rows');
+            tbody.innerHTML = '';
+
+            assets.forEach((asset, index) => {
+                const price = currentCurrency === 'IDR' ? asset.priceUSD * USD_TO_IDR : asset.priceUSD;
+                
+                // Calculate projected price in 3 years based on CAGR
+                const projectedPrice = price * Math.pow(1 + asset.cagr / 100, 3);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-darkbg/50 transition';
+                tr.innerHTML = `
+                    <td class="py-3 font-semibold text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${asset.color}"></span>
+                        ${asset.name} <span class="text-xs text-slate-400 font-mono">(${asset.symbol})</span>
+                    </td>
+                    <td class="py-3 font-mono text-slate-300">${formatMoney(price)}</td>
+                    <td class="py-3">
+                        <input type="number" value="${asset.allocation}" min="0" max="100" 
+                            onchange="updateAsset(${index}, 'allocation', this.value)"
+                            class="w-20 bg-darkbg border border-darkborder rounded px-2 py-1 text-xs text-white focus:border-brand-500">
+                    </td>
+                    <td class="py-3">
+                        <input type="number" value="${asset.cagr}" min="-50" max="500" 
+                            onchange="updateAsset(${index}, 'cagr', this.value)"
+                            class="w-20 bg-darkbg border border-darkborder rounded px-2 py-1 text-xs text-brand-400 font-semibold focus:border-brand-500">
+                    </td>
+                    <td class="py-3 text-right font-mono text-emerald-400 font-medium">${formatMoney(projectedPrice)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            validateAllocationTotal();
+        }
+
+        function updateAsset(index, key, value) {
+            assets[index][key] = parseFloat(value) || 0;
+            renderAssetRows();
+            calculateProjections();
+        }
+
+        function validateAllocationTotal() {
+            const total = assets.reduce((sum, a) => sum + a.allocation, 0);
+            const badge = document.getElementById('allocation-badge');
+            badge.innerText = `Total Alokasi: ${total}%`;
+            if (total === 100) {
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-brand-500/20 text-brand-400 border border-brand-500/30";
+            } else {
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30";
+            }
+        }
+
+        function applyScenario(type) {
+            if (type === 'conservative') {
+                assets[0].cagr = 15; assets[1].cagr = 20; assets[2].cagr = 25;
+                assets[3].cagr = 15; assets[4].cagr = 15; assets[5].cagr = 15;
+            } else if (type === 'moderate') {
+                assets[0].cagr = 25; assets[1].cagr = 30; assets[2].cagr = 45;
+                assets[3].cagr = 20; assets[4].cagr = 25; assets[5].cagr = 20;
+            } else if (type === 'aggressive') {
+                assets[0].cagr = 45; assets[1].cagr = 55; assets[2].cagr = 85;
+                assets[3].cagr = 40; assets[4].cagr = 50; assets[5].cagr = 40;
+            }
+            renderAssetRows();
+            calculateProjections();
+        }
+
+        function calculateProjections() {
+            const initialCapital = parseFloat(document.getElementById('input-initial').value) || 0;
+            const monthlyDCA = parseFloat(document.getElementById('input-dca').value) || 0;
+
+            const totalAlloc = assets.reduce((sum, a) => sum + a.allocation, 0);
+            const months = 36; // 3 Years Horizon
+
+            monthlySimulationData = [];
+            let cumulativeDeposited = initialCapital;
+
+            // Track asset balances: { symbol: { value: 0, tokens: 0 } }
+            let assetState = {};
+            assets.forEach(a => {
+                const initialAssetCapital = initialCapital * (a.allocation / 100);
+                const currentPrice = currentCurrency === 'IDR' ? a.priceUSD * USD_TO_IDR : a.priceUSD;
+                assetState[a.symbol] = {
+                    value: initialAssetCapital,
+                    tokens: currentPrice > 0 ? initialAssetCapital / currentPrice : 0
+                };
+            });
+
+            const startDate = new Date(2026, 9, 1); // Starting Oct 2026
+
+            for (let m = 1; m <= months; m++) {
+                const dcaThisMonth = (m === 1) ? 0 : monthlyDCA; // Month 1 gets initial, subsequent get DCA
+                if (m > 1) cumulativeDeposited += monthlyDCA;
+
+                let rowAssetValues = {};
+                let monthTotalPortfolioValue = 0;
+
+                // Advance each asset by monthly compound growth + add new DCA contribution
+                assets.forEach(a => {
+                    // Monthly growth rate from annual CAGR: (1 + CAGR)^(1/12) - 1
+                    const monthlyGrowthRate = Math.pow(1 + (a.cagr / 100), 1/12) - 1;
+                    
+                    // Grow existing value
+                    assetState[a.symbol].value = assetState[a.symbol].value * (1 + monthlyGrowthRate);
+
+                    // Add DCA allocation for this month
+                    const dcaAllocated = dcaThisMonth * (a.allocation / 100);
+                    assetState[a.symbol].value += dcaAllocated;
+
+                    rowAssetValues[a.symbol] = assetState[a.symbol].value;
+                    monthTotalPortfolioValue += assetState[a.symbol].value;
+                });
+
+                const currentDate = new Date(startDate.getFullYear(), startDate.getMonth() + m - 1, 1);
+                const dateStr = currentDate.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+
+                monthlySimulationData.push({
+                    month: m,
+                    dateStr: dateStr,
+                    monthlyDeposit: m === 1 ? initialCapital : monthlyDCA,
+                    totalDeposited: cumulativeDeposited,
+                    assetValues: { ...rowAssetValues },
+                    totalValue: monthTotalPortfolioValue,
+                    profit: monthTotalPortfolioValue - cumulativeDeposited
+                });
+            }
+
+            // Update KPI Dashboard
+            const finalData = monthlySimulationData[months - 1];
+            const netProfit = finalData.totalValue - finalData.totalDeposited;
+            const roiPercent = finalData.totalDeposited > 0 ? (netProfit / finalData.totalDeposited) * 100 : 0;
+
+            document.getElementById('display-total-deposited').innerText = formatMoney(finalData.totalDeposited);
+            document.getElementById('kpi-deposited').innerText = formatMoney(finalData.totalDeposited);
+            document.getElementById('kpi-final-value').innerText = formatMoney(finalData.totalValue);
+            document.getElementById('kpi-net-profit').innerText = formatMoney(netProfit);
+            document.getElementById('kpi-roi').innerText = (roiPercent >= 0 ? '+' : '') + roiPercent.toFixed(1) + '%';
+
+            renderExcelTable();
+            updateCharts();
+        }
+
+        function renderExcelTable() {
+            const tbody = document.getElementById('excel-table-body');
+            tbody.innerHTML = '';
+
+            monthlySimulationData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/60 transition';
+
+                const profitClass = row.profit >= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold';
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4 font-bold text-slate-300">Bln ${row.month}</td>
+                    <td class="py-2.5 px-4 text-slate-400">${row.dateStr}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.monthlyDeposit)}</td>
+                    <td class="py-2.5 px-4 text-blue-400 font-semibold">${formatMoney(row.totalDeposited)}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.assetValues['BTC'] || 0)}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.assetValues['ETH'] || 0)}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.assetValues['SOL'] || 0)}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.assetValues['BNB'] || 0)}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.assetValues['ADA'] || 0)}</td>
+                    <td class="py-2.5 px-4 text-slate-300">${formatMoney(row.assetValues['XRP'] || 0)}</td>
+                    <td class="py-2.5 px-4 text-right font-bold text-brand-400">${formatMoney(row.totalValue)}</td>
+                    <td class="py-2.5 px-4 text-right ${profitClass}">${formatMoney(row.profit)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateCharts() {
+            const labels = monthlySimulationData.map(d => d.dateStr);
+            const depositedData = monthlySimulationData.map(d => d.totalDeposited);
+            const totalValueData = monthlySimulationData.map(d => d.totalValue);
+
+            // Growth Line Chart
+            if (growthChart) growthChart.destroy();
+            const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+            growthChart = new Chart(ctxGrowth, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Nilai Portofolio (Est. Value)',
+                            data: totalValueData,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Total Modal Disetor (Deposits)',
+                            data: depositedData,
+                            borderColor: '#3b82f6',
+                            borderDash: [5, 5],
+                            backgroundColor: 'transparent',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatMoney(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } },
+                        y: { 
+                            ticks: { 
+                                color: '#64748b',
+                                callback: function(value) { return currentCurrency === 'IDR' ? (value/1e6).toFixed(0) + ' Jt' : '$' + value; }
+                            },
+                            grid: { color: '#1e293b' } 
+                        }
+                    }
+                }
+            });
+
+            // Allocation Doughnut Chart
+            const finalAssetValues = monthlySimulationData[monthlySimulationData.length - 1].assetValues;
+            const doughnutLabels = assets.map(a => a.symbol);
+            const doughnutData = assets.map(a => finalAssetValues[a.symbol] || 0);
+            const doughnutColors = assets.map(a => a.color);
+
+            if (allocationChart) allocationChart.destroy();
+            const ctxAlloc = document.getElementById('allocationChart').getContext('2d');
+            allocationChart = new Chart(ctxAlloc, {
+                type: 'doughnut',
+                data: {
+                    labels: doughnutLabels,
+                    datasets: [{
+                        data: doughnutData,
+                        backgroundColor: doughnutColors,
+                        borderWidth: 2,
+                        borderColor: '#1e293b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + formatMoney(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportToExcel() {
+            // Prepare clean data array for Excel export
+            const exportData = monthlySimulationData.map(row => ({
+                "Bulan ke-": row.month,
+                "Tanggal": row.dateStr,
+                "Deposit Bulanan": row.monthlyDeposit,
+                "Total Modal Disetor": row.totalDeposited,
+                "Bitcoin (BTC) Value": row.assetValues['BTC'] || 0,
+                "Ethereum (ETH) Value": row.assetValues['ETH'] || 0,
+                "Solana (SOL) Value": row.assetValues['SOL'] || 0,
+                "Binance Coin (BNB) Value": row.assetValues['BNB'] || 0,
+                "Cardano (ADA) Value": row.assetValues['ADA'] || 0,
+                "Ripple (XRP) Value": row.assetValues['XRP'] || 0,
+                "Total Nilai Portofolio": row.totalValue,
+                "Estimasi Profit / Loss": row.profit
+            }));
+
+            // Create Worksheet
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Proyeksi HODL 3 Tahun");
+
+            // Dynamic filename with current currency
+            const fileName = `Kalkulasi_HODL_Crypto_3Tahun_${currentCurrency}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+        }
+
+        window.onload = function() {
+            lucide.createIcons();
+            renderAssetRows();
+            calculateProjections();
+        };
+    </script>
+</body>
+</html>
+```
